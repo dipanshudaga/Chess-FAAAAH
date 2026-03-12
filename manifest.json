@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "Chess FAAAAH",
+  "version": "1.0",
+  "description": "Plays the iconic FAAAAH sound whenever you lose a game on either chess.com or lichess.org",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "offscreen"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://www.chess.com/*",
+        "*://chess.com/*"
+      ],
+      "js": [
+        "content-chess.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://lichess.org/*"
+      ],
+      "js": [
+        "content-lichess.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "faaah.mp3"
+      ],
+      "matches": [
+        "*://www.chess.com/*",
+        "*://chess.com/*",
+        "*://lichess.org/*"
+      ]
+    }
+  ]
+}
