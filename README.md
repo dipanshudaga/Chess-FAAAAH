@@ -6,14 +6,13 @@ Because losing a game should *hurt* a little more.
 
 [![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-v1.2-blue?logo=google-chrome&logoColor=white)](https://chromewebstore.google.com/detail/chess-faaaah/nobdehegokblgofghjcmjnbcfokccopa)
 
-## 🛠️ How It Works (Technical)
+## 🛠️ How It Works
 
-The extension utilizes a lightweight, asynchronous detection engine to ensure near-zero latency playback without impacting board performance.
+The extension stays silent in the background and only speaks up when things go wrong.
 
-1.  **DOM Observation**: Employs a `MutationObserver` on the `document.body` to monitor for the specific appearance of game-result containers (`.result-row-component` or game-over modals) across SPA transitions.
-2.  **Orientation Detection**: Introspects the `wc-chess-board` component's state to determine player color (detecting the `.flipped` class for Black) to accurately identify the losing side.
-3.  **Heuristic Result Parsing**: Executes case-insensitive text analysis on game-over artifacts to support various outcomes (1-0, 0-1, Resignation, Timeout) across both Live and Computer matches.
-4.  **Offscreen Audio Pipeline**: Leverages the Chrome Manifest V3 `offscreen` API. Audio is managed in a dedicated context to bypass Service Worker limitations, with an optimized "hot-start" mechanism that eliminates the 100ms initialization bottleneck.
+- **Automatic Side Detection**: It knows if you're playing White or Black, so it only triggers if *you* are the one who lost.
+- **Instant Feedback**: It's optimized for speed, playing the sound the exact moment the game result appears on your screen.
+- **Works Everywhere**: Whether it's a live match, a tournament, or even a game against the computer, it's got you covered.
 
 ## 📦 Install
 
@@ -34,20 +33,20 @@ The extension utilizes a lightweight, asynchronous detection engine to ensure ne
 
 ## 🔒 Privacy
 
-This extension follows strict privacy-first principles:
-- **Zero Data Collection**: No user metrics or game data are ever stored or transmitted.
-- **Local Enforcement**: All result detection happens entirely within the local DOM context.
-- **Minimal Permissions**: Only requires the `offscreen` permission for audio playback functionality.
+This extension is built with your privacy in mind:
+- **Zero Tracking**: It doesn't collect any data or monitor your games beyond detecting the final score.
+- **No Network Activity**: It never talks to any servers. Everything happens entirely on your machine.
+- **Minimal Permissions**: Only uses the absolute bare minimum permissions needed to play audio.
 
 ## 📂 File Structure
 
 ```
-├── manifest.json          # Manifest V3 configuration
-├── content-chess.js       # DOM monitor and heuristic engine (Chess.com)
-├── content-lichess.js     # DOM monitor and heuristic engine (Lichess)
-├── background.js          # Service Worker audio event coordinator
-├── offscreen.html/.js     # Audio playback context
-└── faaah.mp3              # Iconic sound asset
+├── manifest.json          # Extension configuration
+├── content-chess.js       # Game detection for Chess.com
+├── content-lichess.js     # Game detection for Lichess
+├── background.js          # Audio coordinator
+├── offscreen.html/.js     # High-speed audio player
+└── faaah.mp3              # The sound asset
 ```
 
 ## 📜 License
