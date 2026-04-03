@@ -6,14 +6,6 @@ Because losing a game should *hurt* a little more.
 
 [![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-v1.2-blue?logo=google-chrome&logoColor=white)](https://chromewebstore.google.com/detail/chess-faaaah/nobdehegokblgofghjcmjnbcfokccopa)
 
-## 🛠️ How It Works
-
-The extension stays silent in the background and only speaks up when things go wrong.
-
-- **Automatic Side Detection**: It knows if you're playing White or Black, so it only triggers if *you* are the one who lost.
-- **Instant Feedback**: It's optimized for speed, playing the sound the exact moment the game result appears on your screen.
-- **Works Everywhere**: Whether it's a live match, a tournament, or even a game against the computer, it's got you covered.
-
 ## 📦 Install
 
 **[Install from Chrome Web Store](https://chromewebstore.google.com/detail/chess-faaaah/nobdehegokblgofghjcmjnbcfokccopa)**
