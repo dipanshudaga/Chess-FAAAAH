@@ -52,11 +52,3 @@ This extension:
 
 MIT — do whatever you want with it. Just don't mute the FAAAAH.
 
-## Troubleshooting (Board Slam)
-
-If the **Board Slam** (the yellow fist animation) isn't working on Chess.com:
-1. Open [Chess.com](https://www.chess.com/play/computer)
-2. Open the browser console (**Right click > Inspect > Console**)
-3. Copy the contents of `diagnostics.js` from this codebase and paste them into the console.
-4. Press Enter and share the output here!
-
