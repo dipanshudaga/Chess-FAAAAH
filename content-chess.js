@@ -1,51 +1,59 @@
-// content-chess.js — detects losses on Chess.com and triggers the FAA sound
+// content-chess.js — Direct Loss Detection
 
-let played = false;
-let lastUrl = location.href;
-let lastSeenResult = '';
-
-function playFaaSound() {
-  chrome.runtime.sendMessage({ action: 'play_faa' }).catch(() => {});
+function playFaaah() {
+  chrome.runtime.sendMessage({ action: 'play_faa' });
 }
 
-function getMyColor() {
-  // The board div has class "board flipped" when playing black
-  const board = document.querySelector('.board');
-  if (board && board.classList.contains('flipped')) return 'black';
-  return 'white';
-}
+let soundFiredForCurrentGame = false;
 
 function checkForLoss() {
-  if (played) return;
+  const resultRow = document.querySelector('.result-row-component');
+  const modal = document.querySelector('.game-over-modal-shell-container');
 
-  const resultRow = document.querySelector('.result-row');
-  if (!resultRow) return;
-  const result = resultRow.innerText.trim();
-  if (result !== '0-1' && result !== '1-0') return;
+  if (!resultRow && !modal) {
+    soundFiredForCurrentGame = false;
+    return;
+  }
 
-  // Skip if this is the same result we already saw (stale from previous game)
-  if (result === lastSeenResult) return;
+  if (soundFiredForCurrentGame) return;
 
-  const me = getMyColor();
-  const iLost = (me === 'black' && result === '1-0') ||
-    (me === 'white' && result === '0-1');
-  if (iLost) {
-    played = true;
-    lastSeenResult = result;
-    playFaaSound();
+  let isLoss = false;
+  const board = document.querySelector('wc-chess-board') || document.querySelector('.board');
+  const userIsBlack = board ? board.classList.contains('flipped') : false;
+  
+  if (resultRow) {
+    const text = resultRow.textContent.toLowerCase();
+    isLoss = (text.includes('1-0') && userIsBlack) || 
+             (text.includes('0-1') && !userIsBlack) ||
+             text.includes('lost');
+  }
+
+  if (!isLoss && modal) {
+    const text = modal.textContent.toLowerCase();
+    
+    if (text.includes('you lost')) {
+      isLoss = true;
+    }
+    
+    if (text.includes('white won') && userIsBlack) {
+      isLoss = true;
+    } else if (text.includes('black won') && !userIsBlack) {
+      isLoss = true;
+    }
+
+    if (text.includes('computer won') || text.includes('bot won')) {
+      isLoss = true;
+    }
+  }
+
+  if (isLoss) {
+    soundFiredForCurrentGame = true;
+    playFaaah();
   }
 }
 
-new MutationObserver(checkForLoss)
-  .observe(document.body, { childList: true, subtree: true });
+const observer = new MutationObserver(() => {
+  checkForLoss();
+});
 
-setInterval(() => {
-  if (location.href !== lastUrl) {
-    lastUrl = location.href;
-    played = false;
-    // Remember the result text so we don't re-trigger on stale DOM
-    const resultRow = document.querySelector('.result-row');
-    lastSeenResult = resultRow ? resultRow.innerText.trim() : '';
-  }
-}, 1000);
-
+observer.observe(document.body, { childList: true, subtree: true });
