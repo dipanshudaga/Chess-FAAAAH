@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Chess FAAAAH",
-  "version": "1.3",
-  "description": "Plays the iconic FAAAAH sound whenever you lose a game on either chess.com or lichess.org",
+  "version": "1.4",
+  "description": "Plays the iconic FAAAAH or Magnus OMG sound the moment you lose a chess game.",
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
