@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener((msg) => {
 });
 
 function processPlay(src) {
-    if (!src) return;
+    if (!src || typeof src !== 'string') return;
 
     if (!src.startsWith(chrome.runtime.getURL(''))) return;
 

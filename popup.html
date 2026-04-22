@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Select Loss Sound</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: rgba(255, 255, 255, 0.04);
+            --surface-hover: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.08);
+            --accent: #e74c5a;
+            --accent-glow: rgba(231, 76, 90, 0.15);
+            --accent-border: rgba(231, 76, 90, 0.6);
+            --text: #f1f5f9;
+            --text-dim: #64748b;
+            --font: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            width: 240px;
+            overflow: hidden;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .title {
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            letter-spacing: 0.3px;
+            margin-bottom: 16px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sound-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .sound-option:hover {
+            background: var(--surface-hover);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .sound-option.selected {
+            background: var(--accent-glow);
+            border-color: var(--accent-border);
+        }
+
+        input[type="radio"] { display: none; }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--text-dim);
+            border-radius: 50%;
+            flex-shrink: 0;
+            position: relative;
+            transition: border-color 0.15s ease;
+        }
+
+        .sound-option.selected .dot {
+            border-color: var(--accent);
+        }
+
+        .sound-option.selected .dot::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .sound-name {
+            font-size: 13px;
+            font-weight: 500;
+            flex-grow: 1;
+        }
+
+        .play-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            padding: 2px;
+            display: flex;
+            transition: color 0.15s ease;
+        }
+
+        .play-btn:hover {
+            color: var(--accent);
+        }
+
+        .play-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .footer {
+            margin-top: 14px;
+            font-size: 10px;
+            color: var(--text-dim);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">Choose Loss Sound</div>
+
+        <div class="options">
+            <label class="sound-option" id="opt-faaah">
+                <input type="radio" name="sound" value="FAAAAH.mp3">
+                <div class="dot"></div>
+                <span class="sound-name">FAAAAH</span>
+                <button class="play-btn" data-sound="FAAAAH.mp3" title="Preview">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+                </button>
+            </label>
+
+            <label class="sound-option" id="opt-magnus">
+                <input type="radio" name="sound" value="Magnus OMG.mp3">
+                <div class="dot"></div>
+                <span class="sound-name">Magnus OMG</span>
+                <button class="play-btn" data-sound="Magnus OMG.mp3" title="Preview">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+                </button>
+            </label>
+        </div>
+
+        <div class="footer">Selection saves automatically</div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
