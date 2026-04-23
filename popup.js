@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const previews = document.querySelectorAll('.play-btn');
     let currentPreview = null;
 
-    const { selectedSound } = await chrome.storage.sync.get({ selectedSound: 'FAAAAH.mp3' });
+    const { selectedSound } = await chrome.storage.sync.get({ selectedSound: 'faaah.mp3' });
     
     radios.forEach(radio => {
         if (radio.value === selectedSound) {
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             currentPreview = new Audio(chrome.runtime.getURL(soundFile));
-            currentPreview.play().catch(err => console.error('Preview failed:', err));
+            currentPreview.play().catch(() => {});
         });
     });
 });
