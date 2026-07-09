@@ -59,8 +59,6 @@ async function ensureOffscreenDocument() {
     url: 'offscreen.html',
     reasons: ['AUDIO_PLAYBACK'],
     justification: 'Play loss sound effect',
-  }).then(() => {
-    return new Promise(resolve => setTimeout(resolve, 200));
   }).catch(() => {
   }).finally(() => {
     creatingPromise = null;
@@ -78,7 +76,7 @@ async function playSound() {
       // If message fails, the offscreen doc might have just been created and not ready
       setTimeout(() => {
         chrome.runtime.sendMessage({ action: 'do_play', src: audioUrl }).catch(() => {});
-      }, 300);
+      }, 50);
     });
   } catch (e) {}
 }
