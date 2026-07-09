@@ -16,45 +16,23 @@
     return true;
   }
 
-  // ── Audio: play directly in content script (no service worker round-trip) ──
-  let audioEl = null;
-  let selectedSound = 'faaah.mp3';
-
-  function buildAudioElement(soundFile) {
-    const url = chrome.runtime.getURL(soundFile);
-    const el = new Audio(url);
-    el.preload = 'auto';
-    return el;
+  // ── Keep the service worker alive so it never has a cold-start delay ───────
+  function pingServiceWorker() {
+    if (!isContextValid()) return;
+    chrome.runtime.sendMessage({ action: 'ping' }).catch(() => {});
   }
+  pingServiceWorker();
+  setInterval(pingServiceWorker, 20000);
 
-  function initAudio() {
-    chrome.storage.sync.get({ selectedSound: 'faaah.mp3' }, (data) => {
-      selectedSound = data.selectedSound || 'faaah.mp3';
-      audioEl = buildAudioElement(selectedSound);
-    });
-  }
-
-  chrome.storage.onChanged.addListener((changes) => {
-    if (changes.selectedSound) {
-      selectedSound = changes.selectedSound.newValue;
-      audioEl = buildAudioElement(selectedSound);
-    }
-  });
-
+  // ── Sound trigger ──────────────────────────────────────────────────────────
   function playFaaSound() {
     if (!isContextValid()) return;
     try {
-      if (audioEl) {
-        audioEl.currentTime = 0;
-        audioEl.play().catch(() => {});
-        setTimeout(() => { audioEl = buildAudioElement(selectedSound); }, 500);
-      } else {
-        buildAudioElement(selectedSound).play().catch(() => {});
-      }
-    } catch (e) {}
+      chrome.runtime.sendMessage({ action: 'play_faa' }).catch(() => {});
+    } catch (e) {
+      if (observer) observer.disconnect();
+    }
   }
-
-  initAudio();
 
   // ── Loss detection ─────────────────────────────────────────────────────────
   function getMyColor() {

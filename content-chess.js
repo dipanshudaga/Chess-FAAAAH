@@ -17,49 +17,29 @@
     return true;
   }
 
-  // ── Audio: play directly in content script (no service worker round-trip) ──
-  let audioEl = null;
-  let selectedSound = 'faaah.mp3';
-
-  function buildAudioElement(soundFile) {
-    const url = chrome.runtime.getURL(soundFile);
-    const el = new Audio(url);
-    el.preload = 'auto'; // buffer the file immediately
-    return el;
+  // ── Keep the service worker alive so it never has a cold-start delay ───────
+  // Chrome MV3 SWs go to sleep after ~30s. We ping every 20s to prevent that.
+  function pingServiceWorker() {
+    if (!isContextValid()) return;
+    chrome.runtime.sendMessage({ action: 'ping' }).catch(() => {});
   }
+  pingServiceWorker();
+  setInterval(pingServiceWorker, 20000);
 
-  function initAudio() {
-    chrome.storage.sync.get({ selectedSound: 'faaah.mp3' }, (data) => {
-      selectedSound = data.selectedSound || 'faaah.mp3';
-      audioEl = buildAudioElement(selectedSound);
-    });
-  }
-
-  // Refresh audio element when user changes sound in popup
-  chrome.storage.onChanged.addListener((changes) => {
-    if (changes.selectedSound) {
-      selectedSound = changes.selectedSound.newValue;
-      audioEl = buildAudioElement(selectedSound);
-    }
-  });
-
+  // ── Sound trigger ──────────────────────────────────────────────────────────
   function playFaaah() {
     if (!isContextValid()) return;
     try {
-      if (audioEl) {
-        audioEl.currentTime = 0;
-        audioEl.play().catch(() => {});
-        // Rebuild for next potential loss in same session
-        setTimeout(() => { audioEl = buildAudioElement(selectedSound); }, 500);
-      } else {
-        // Fallback: create on the spot (should rarely happen)
-        buildAudioElement(selectedSound).play().catch(() => {});
-      }
-    } catch (e) {}
+      chrome.runtime.sendMessage({ action: 'play_faa' }).catch(err => {
+        if (err && err.message && err.message.includes('context invalidated')) {
+          window.chessFaaahSession = null;
+          if (observer) observer.disconnect();
+        }
+      });
+    } catch (e) {
+      if (observer) observer.disconnect();
+    }
   }
-
-  // Pre-load immediately
-  initAudio();
 
   // ── Loss detection ─────────────────────────────────────────────────────────
   let soundFiredForCurrentGame = false;
@@ -127,7 +107,7 @@
     }
   }, true);
 
-  // ── MutationObserver: watch for modal + board attribute changes ────────────
+  // ── MutationObserver ───────────────────────────────────────────────────────
   const observer = new MutationObserver((mutations) => {
     if (!isContextValid()) { observer.disconnect(); return; }
     for (const mutation of mutations) {

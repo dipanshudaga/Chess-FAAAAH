@@ -19,12 +19,9 @@ chrome.runtime.onInstalled.addListener(async () => {
 
   for (const script of contentScripts) {
     try {
-      // chrome.tabs.query url parameter accepts an array of match patterns
       const tabs = await chrome.tabs.query({ url: script.matches });
-      
       for (const tab of tabs) {
         if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('edge://')) continue;
-        
         chrome.scripting.executeScript({
           target: { tabId: tab.id },
           files: script.js
@@ -38,18 +35,26 @@ chrome.runtime.onMessage.addListener((msg) => {
   if (msg.action === 'play_faa') {
     playSound();
   }
+  // 'ping' messages from content scripts keep the service worker alive — no-op
 });
 
+// ── Offscreen document management ──────────────────────────────────────────
+// Use a boolean flag so we never call getContexts() (async IPC) on every play.
+let offscreenReady = false;
 let creatingPromise = null;
 
 async function ensureOffscreenDocument() {
-  // Check if it already exists
+  if (offscreenReady) return; // already up — skip the IPC call
+
+  // Double-check in case the SW was restarted and lost the flag
   const existingContexts = await chrome.runtime.getContexts({
     contextTypes: ['OFFSCREEN_DOCUMENT'],
   });
-  if (existingContexts.length > 0) return;
+  if (existingContexts.length > 0) {
+    offscreenReady = true;
+    return;
+  }
 
-  // If we are already creating it, wait for that one
   if (creatingPromise) {
     await creatingPromise;
     return;
@@ -62,6 +67,7 @@ async function ensureOffscreenDocument() {
   }).catch(() => {
   }).finally(() => {
     creatingPromise = null;
+    offscreenReady = true;
   });
 
   await creatingPromise;
@@ -70,16 +76,13 @@ async function ensureOffscreenDocument() {
 async function playSound() {
   try {
     await ensureOffscreenDocument();
-    const audioUrl = chrome.runtime.getURL(currentSelectedSound);
-    
-    chrome.runtime.sendMessage({ action: 'do_play', src: audioUrl }).catch(() => {
-      // If message fails, the offscreen doc might have just been created and not ready
+    chrome.runtime.sendMessage({ action: 'do_play', soundFile: currentSelectedSound }).catch(() => {
       setTimeout(() => {
-        chrome.runtime.sendMessage({ action: 'do_play', src: audioUrl }).catch(() => {});
+        chrome.runtime.sendMessage({ action: 'do_play', soundFile: currentSelectedSound }).catch(() => {});
       }, 50);
     });
   } catch (e) {}
 }
 
-// Pre-load offscreen doc on startup
+// Pre-warm the offscreen doc on startup so it's ready before the first loss
 ensureOffscreenDocument();
